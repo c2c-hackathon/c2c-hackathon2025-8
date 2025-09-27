@@ -33,7 +33,7 @@ class Game:
         self.started = False
         self.play_game = True
         self.queue = queue.Queue()
-        self.selected
+        self.selected = None
 
     @property
     def correct_sound(self):
@@ -71,8 +71,10 @@ class Game:
         # TODO: this is called when a button is pressed. Add what you need to here
         _logger.info(f"Button {button.pin.info.number} pressed")
         self.queue.put(button.pin.info.number)
-        button_data = self.buttons[button.pin.info.number]
+        button_data = self.buttons[button.pin.info.number - 1]
+        print("New Selected Data: " + button_data.color)
         if self.selected != None:
+            print("Selected Data:" + self.selected.color)
             # if Matched
             if button_data.color == self.selected.color:
                 button_data.matched = True
@@ -80,7 +82,7 @@ class Game:
                 self.selected = None
 
         else:
-            self.selected = self.buttons[button.pin.info.number]
+            self.selected = button_data
             
 
 
