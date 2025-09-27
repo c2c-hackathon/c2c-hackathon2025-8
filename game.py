@@ -84,6 +84,13 @@ class Game:
         new_thread = threading.Thread(target=add_to_queue)
         new_thread.start()
 
+    def play_sound_queue(self, sound):
+        def play():
+            self.speaker.play_preloaded_wav(sound, wait_until_done=True)
+
+        new_thread = threading.Thread(target=play)
+        new_thread.start()
+
     def _background_logic_checker(self):
         while self.play_game:
 
@@ -92,11 +99,11 @@ class Game:
                 continue
             button_number = self.queue.get()
             print(f"Handling button {button_number}")
-            
+
 
             # Example logic: light up the button that was pressed with a constant color
             button = self.button_pad.get_button(button_number + 1)
-            
+
             # Check for color existence in self.buttons
             try:
                 color = self.buttons[button_number].color
@@ -105,6 +112,15 @@ class Game:
 
             # Getting the button color 
             self.button_pad.set_button_led_color(button, color)
+
+            try:
+                sound = self.buttons[button_number].sound
+            except:
+                sound = "bloop_x"
+
+            self.play_sound_queue(sound)
+
+            # Get previously selected button
             selected_button_data = self.buttons[self.selected - 1] if self.selected else None
             print("Self Selected: ", selected_button_data)
 
@@ -118,14 +134,11 @@ class Game:
                 self.add_black_queue(button_number, selected_button_data.index)
                 self.active = 0
                 self.selected = None
-
-
+                
             if self.matches == 8:
                 self.speaker.play_preloaded_wav(self.end_of_game_sound, wait_until_done=True) 
                 print(self.attempts)
 
-
-            self.speaker.play_preloaded_wav("bloop_x", wait_until_done=True)  # Play a sound when button is pressed
             # TODO: check your game state, and update things
 
     def when_pressed(self, button):
@@ -164,9 +177,7 @@ class Game:
 
         else:
             self.selected = button.pin.info.number
-            
-
-
+           
     def when_held(self, button):
         # TODO: this is called when a button is held. Add what you need to here
         button_num = button.pin.info.number - 1
@@ -262,6 +273,8 @@ class Game:
 
         color_list = self.generate_colors(self.colors)
         sound_list = self.generate_sounds(self.sounds) 
+        
+        new_buttons = []
 
         for i in range(16):
             color = color_list[i]
@@ -271,15 +284,9 @@ class Game:
             
             button_info = ButtonInfo(color, sound, matched, index)
 
-            self.buttons.append(button_info)
-
-            print(f"""
-            Button: {i}
-            Color: {color}
-            Sound: {sound}
-            Matched: {matched}
-            Index: {index}
-            """)
+            new_buttons.append(button_info)
+        
+        self.buttons = new_buttons
 
 
         # TODO: assign to buttons
