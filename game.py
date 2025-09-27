@@ -35,9 +35,11 @@ class Game:
         self.started = False
         self.play_game = True
         self.queue = queue.Queue()
+
         self.active = 0
         self.selected = None
         self.attempts = 0
+        self.matches = 0
 
     @property
     def correct_sound(self):
@@ -56,6 +58,11 @@ class Game:
         """The sound that is played when the game ends."""
         # OPTIONAL: change this to a different sound if you want
         return "end_of_game"
+    @property
+    def start_of_game_sound(self):
+        """The sound that is played when the game ends."""
+        # OPTIONAL: change this to a different sound if you want
+        return "drum_roll2"
 
     def add_black_queue(self, button_number, selected_number):
         # Function to black out lights
@@ -112,6 +119,12 @@ class Game:
                 self.active = 0
                 self.selected = None
 
+
+            if self.matches == 8:
+                self.speaker.play_preloaded_wav(self.end_of_game_sound, wait_until_done=True) 
+                print(self.attempts)
+                
+
             self.speaker.play_preloaded_wav("bloop_x", wait_until_done=True)  # Play a sound when button is pressed
             # TODO: check your game state, and update things
 
@@ -138,6 +151,7 @@ class Game:
             self.attempts += 1
             # if Matched
             if button_data.color == selected_button_data.color:
+                self.matches += 1
                 selected_button_data.matched = True
                 self.speaker.play_preloaded_wav(self.correct_sound, wait_until_done=True)
             else:
@@ -215,6 +229,7 @@ class Game:
             
     def initialize_button_pad(self):
         self.button_pad.clear_button_pad()
+        self.speaker.play_preloaded_wav(self.start_of_game_sound, wait_until_done=True) 
         # TODO: Set all buttons to a color, List of colors to choose from: https://github.com/waveform80/colorzero/blob/master/colorzero/tables.py#L315
         # sounds are available in the sounds directory
         self.sounds = [
