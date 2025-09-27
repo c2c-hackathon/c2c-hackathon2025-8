@@ -3,6 +3,7 @@ import queue
 import threading
 import time
 import typing
+import random
 from dataclasses import dataclass
 
 import library
@@ -76,7 +77,53 @@ class Game:
     def when_released(self, button):
         # TODO: this is called when a button is released. Add what you need to here
         pass
+    
+    def generate_colors(self, colors):
+        color_dictionary = {}
 
+        initial_nums = list(range(16)) # Numbers 1-16 on the button pad
+        initial_colors = colors
+
+        for i in range(8):
+            # Get random choices from the initial lists
+            random_color = random.choice(initial_colors)
+
+            num1 = random.choice(initial_nums)
+            initial_nums.remove(num1) # Remove number so random choice won't pick again
+
+            num2 = random.choice(initial_nums)
+            initial_nums.remove(num2) # Remove number so random choice won't pick again
+            
+            initial_colors.remove(random_color)
+
+            color_dictionary.update({num1: random_color, num2: random_color})
+
+        return color_dictionary
+    
+    def generate_sounds(self, sounds):
+        sounds_dictionary = {}
+
+        initial_nums = list(range(16)) # Numbers 1-16 on the button pad
+        initial_sounds = sounds
+
+        for i in range(8):
+            # Get random choices from the initial lists
+            random_sound = random.choice(initial_sounds)
+
+            num1 = random.choice(initial_nums)
+            initial_nums.remove(num1) # Remove number so random choice won't pick again
+
+            num2 = random.choice(initial_nums)
+            initial_nums.remove(num2) # Remove number so random choice won't pick again
+            
+            initial_sounds.remove(random_sound) 
+
+            sounds_dictionary.update({num1: random_sound, num2: random_sound})
+
+        return sounds_dictionary
+
+
+            
     def initialize_button_pad(self):
         self.button_pad.clear_button_pad()
         # TODO: Set all buttons to a color, List of colors to choose from: https://github.com/waveform80/colorzero/blob/master/colorzero/tables.py#L315
@@ -91,6 +138,38 @@ class Game:
             "bloop_x",
             "car_horn_x",
         ]
+
+        self.colors = [
+            "chartreuse", 
+            "aqua", 
+            "fuchsia", 
+            "gold", 
+            "orangered", 
+            "purple", 
+            "white", 
+            "blue"
+        ]
+
+        color_list = self.generate_colors(self.colors)
+        sound_list = self.generate_sounds(self.sounds)
+
+        for i in range(16):
+            color = color_list[i]
+            sound = sound_list[i]
+            matched = False
+            
+            button_info = ButtonInfo(color, sound, matched)
+
+            self.buttons.append(button_info)
+
+            print(f"""
+            Button: {i}
+            Color: {color}
+            Sound: {sound}
+            Matched: {matched}
+            """)
+
+
         # TODO: assign to buttons
 
     def _start_game(self):
