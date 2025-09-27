@@ -85,7 +85,7 @@ class Game:
                 continue
             button_number = self.queue.get()
             print(f"Handling button {button_number}")
-
+            
 
             # Example logic: light up the button that was pressed with a constant color
             button = self.button_pad.get_button(button_number + 1)
@@ -98,15 +98,17 @@ class Game:
 
             # Getting the button color 
             self.button_pad.set_button_led_color(button, color)
-
-            print("Self Selected: ", self.selected)
+            selected_button_data = self.buttons[self.selected - 1] if self.selected else None
+            print("Self Selected: ", selected_button_data)
 
             # Logic to either keep color active, hide color
-            if self.active > 1 and self.selected and self.selected.matched:
+            
+
+            if self.active > 1 and selected_button_data and selected_button_data.matched:
                 self.selected = None
                 self.active = 0
-            elif self.active > 1 and self.selected and not self.selected.matched:
-                self.add_black_queue(button_number, self.selected.index)
+            elif self.active > 1 and selected_button_data and not selected_button_data.matched:
+                self.add_black_queue(button_number, selected_button_data.index)
                 self.active = 0
                 self.selected = None
 
@@ -132,7 +134,7 @@ class Game:
             # If Button Is the Same
             if button.pin.info.number == self.selected:
                 return
-            self.selected = None
+
             self.attempts += 1
             # if Matched
             if button_data.color == selected_button_data.color:
@@ -141,8 +143,6 @@ class Game:
             else:
                 selected_button_data.matched = False
                 
-                
-            
                 self.speaker.play_preloaded_wav(self.incorrect_sound, wait_until_done=True) 
 
         else:
@@ -240,7 +240,7 @@ class Game:
         ]
 
         color_list = self.generate_colors(self.colors)
-        sound_list = self.generate_sounds(self.sounds)
+        sound_list = self.generate_sounds(self.sounds) 
 
         for i in range(16):
             color = color_list[i]
