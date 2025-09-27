@@ -4,6 +4,7 @@ import threading
 import time
 import typing
 import random
+from time import sleep as wait
 from dataclasses import dataclass
 
 import library
@@ -18,6 +19,7 @@ class ButtonInfo:
     color: str
     sound: str
     matched: bool
+    index: int
 
 
 
@@ -33,6 +35,7 @@ class Game:
         self.started = False
         self.play_game = True
         self.queue = queue.Queue()
+        self.active = 0
         self.selected = None
 
     @property
@@ -53,33 +56,62 @@ class Game:
         # OPTIONAL: change this to a different sound if you want
         return "end_of_game"
 
+    def add_black_queue(self, button_number, selected_number):
+        def add_to_queue():
+            print("New Queue Created:","\n", button_number, selected_number)
+            button = self.button_pad.get_button(button_number + 1)
+            self.button_pad.set_button_led_color(button, "black")
+
+            button = self.button_pad.get_button(selected_number + 1)
+            self.button_pad.set_button_led_color(button, "black")
+                
+
+        new_thread = threading.Thread(target=add_to_queue)
+        new_thread.start()
+
     def _background_logic_checker(self):
         while self.play_game:
+
             time.sleep(0.005)  # Prevents busy-waiting
             if self.queue.empty():
                 continue
             button_number = self.queue.get()
             print(f"Handling button {button_number}")
 
+
             # Example logic: light up the button that was pressed with a constant color
-            button = self.button_pad.get_button(button_number)
-            self.button_pad.set_button_led_color(button, "red")
+            button = self.button_pad.get_button(button_number + 1)
+            color = self.buttons[button_number].color if self.buttons[button_number] else "black"
+            self.button_pad.set_button_led_color(button, color)
+
+            print("Self Selected: ", self.selected)
+            if self.active > 1 and self.selected and self.selected.matched:
+                self.selected = None
+                self.active = 0
+            elif self.active > 1 and self.selected and not self.selected.matched:
+                self.add_black_queue(button_number, self.selected.index)
+                self.active = 0
+                self.selected = None
+
             self.speaker.play_preloaded_wav("bloop_x", wait_until_done=True)  # Play a sound when button is pressed
             # TODO: check your game state, and update things
 
     def when_pressed(self, button):
         # TODO: this is called when a button is pressed. Add what you need to here
         _logger.info(f"Button {button.pin.info.number} pressed")
-        self.queue.put(button.pin.info.number)
+        self.queue.put(button.pin.info.number - 1)
         button_data = self.buttons[button.pin.info.number - 1]
         print("New Selected Data: " + button_data.color)
+        self.active += 1
+
         if self.selected != None:
             print("Selected Data:" + self.selected.color)
             # if Matched
             if button_data.color == self.selected.color:
                 button_data.matched = True
                 self.selected.matched = True
-                self.selected = None
+            else:
+                self.selected.matched = False
 
         else:
             self.selected = button_data
@@ -158,11 +190,11 @@ class Game:
         self.colors = [
             "chartreuse", 
             "aqua", 
-            "fuchsia", 
+            "red", 
             "gold", 
             "orangered", 
             "purple", 
-            "white", 
+            "pink", 
             "blue"
         ]
 
@@ -172,9 +204,10 @@ class Game:
         for i in range(16):
             color = color_list[i]
             sound = sound_list[i]
+            index = i
             matched = False
             
-            button_info = ButtonInfo(color, sound, matched)
+            button_info = ButtonInfo(color, sound, matched, index)
 
             self.buttons.append(button_info)
 
@@ -183,6 +216,7 @@ class Game:
             Color: {color}
             Sound: {sound}
             Matched: {matched}
+            Index: {index}
             """)
 
 
