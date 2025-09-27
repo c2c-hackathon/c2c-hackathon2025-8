@@ -80,6 +80,10 @@ class Game:
                 button_data.matched = True
                 self.selected.matched = True
                 self.selected = None
+                self.speaker.play_preloaded_wav(self.correct_sound, wait_until_done=True)
+                return
+            # if incorrect
+            self.speaker.play_preloaded_wav(self.incorrect_sound, wait_until_done=True) 
 
         else:
             self.selected = button_data
@@ -96,7 +100,7 @@ class Game:
         elif button_num == 1:
             for button_data in self.buttons:
                 button_data.matched = True
-                print(button_data.matched)
+                # TODO: Set Colors
         
 
     def when_released(self, button):
