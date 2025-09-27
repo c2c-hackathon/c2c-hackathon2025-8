@@ -135,7 +135,7 @@ class Game:
                 
             if self.matches == 8:
                 self.speaker.play_preloaded_wav(self.end_of_game_sound, wait_until_done=True) 
-                print("You Won In " + self.attempts + " Attempts!")
+                print("You Won In " + str(self.attempts) + " Attempts!")
 
             # TODO: check your game state, and update things
 
@@ -172,7 +172,7 @@ class Game:
                 
                 wait(1)
 
-                self.speaker.play_preloaded_wav(self.correct_sound, wait_until_done=True)
+                self.speaker.play_preloaded_wav(self.correct_sound, wait_until_done=False)
             else:
                 selected_button_data.matched = False
                 
@@ -180,7 +180,7 @@ class Game:
 
                 wait(1)
 
-                self.speaker.play_preloaded_wav(self.incorrect_sound, wait_until_done=True) 
+                self.speaker.play_preloaded_wav(self.incorrect_sound, wait_until_done=False) 
 
         else:
             self.play_sound_queue(button_data.sound)
