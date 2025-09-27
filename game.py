@@ -123,7 +123,7 @@ class Game:
             if self.matches == 8:
                 self.speaker.play_preloaded_wav(self.end_of_game_sound, wait_until_done=True) 
                 print(self.attempts)
-                
+
 
             self.speaker.play_preloaded_wav("bloop_x", wait_until_done=True)  # Play a sound when button is pressed
             # TODO: check your game state, and update things
@@ -136,7 +136,8 @@ class Game:
         
         print("New Selected Data: " + button_data.color)
         self.active += 1
-
+        if button_data.matched: 
+            return
         if self.selected != None:
             
             
@@ -153,6 +154,7 @@ class Game:
             if button_data.color == selected_button_data.color:
                 self.matches += 1
                 selected_button_data.matched = True
+                button_data.matched = True
                 self.speaker.play_preloaded_wav(self.correct_sound, wait_until_done=True)
             else:
                 selected_button_data.matched = False
@@ -172,8 +174,10 @@ class Game:
             self.selected = None
             self.initialize_button_pad()
         elif button_num == 1:
-            for button_data in self.buttons:
+            for i, button_data in enumerate(self.buttons):
                 button_data.matched = True
+
+                self.button_pad.set_button_led_color(self.button_pad.matrix_button_board[i], button_data.color)
                 # TODO: Set Colors
         
 
