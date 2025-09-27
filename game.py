@@ -98,6 +98,8 @@ class Game:
 
             # Getting the button color 
             self.button_pad.set_button_led_color(button, color)
+
+            # Get previously selected button
             selected_button_data = self.buttons[self.selected - 1] if self.selected else None
             print("Self Selected: ", selected_button_data)
 
@@ -147,9 +149,7 @@ class Game:
 
         else:
             self.selected = button.pin.info.number
-            
-
-
+           
     def when_held(self, button):
         # TODO: this is called when a button is held. Add what you need to here
         button_num = button.pin.info.number - 1
@@ -241,6 +241,8 @@ class Game:
 
         color_list = self.generate_colors(self.colors)
         sound_list = self.generate_sounds(self.sounds) 
+        
+        new_buttons = []
 
         for i in range(16):
             color = color_list[i]
@@ -250,15 +252,9 @@ class Game:
             
             button_info = ButtonInfo(color, sound, matched, index)
 
-            self.buttons.append(button_info)
-
-            print(f"""
-            Button: {i}
-            Color: {color}
-            Sound: {sound}
-            Matched: {matched}
-            Index: {index}
-            """)
+            new_buttons.append(button_info)
+        
+        self.buttons = new_buttons
 
 
         # TODO: assign to buttons
