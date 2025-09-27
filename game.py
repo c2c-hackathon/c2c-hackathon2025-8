@@ -37,6 +37,7 @@ class Game:
         self.queue = queue.Queue()
         self.active = 0
         self.selected = None
+        self.attempts = 0
 
     @property
     def correct_sound(self):
@@ -117,26 +118,50 @@ class Game:
         _logger.info(f"Button {button.pin.info.number} pressed")
         self.queue.put(button.pin.info.number - 1)
         button_data = self.buttons[button.pin.info.number - 1]
+        
         print("New Selected Data: " + button_data.color)
         self.active += 1
 
         if self.selected != None:
-            print("Selected Data:" + self.selected.color)
+            
+            
+            print(self.attempts)
+            selected_button_data = self.buttons[self.selected - 1]
+            print("Selected Data:" + selected_button_data.color)
+
+            # If Button Is the Same
+            if button.pin.info.number == self.selected:
+                return
+            self.selected = None
+            self.attempts += 1
             # if Matched
-            if button_data.color == self.selected.color:
-                button_data.matched = True
-                self.selected.matched = True
+            if button_data.color == selected_button_data.color:
+                selected_button_data.matched = True
+                self.speaker.play_preloaded_wav(self.correct_sound, wait_until_done=True)
             else:
-                self.selected.matched = False
+                selected_button_data.matched = False
+                
+                
+            
+                self.speaker.play_preloaded_wav(self.incorrect_sound, wait_until_done=True) 
 
         else:
-            self.selected = button_data
+            self.selected = button.pin.info.number
             
 
 
     def when_held(self, button):
         # TODO: this is called when a button is held. Add what you need to here
-        pass
+        button_num = button.pin.info.number - 1
+        print(str(button_num) + " Button Held")
+        if button_num == 0:
+            self.selected = None
+            self.initialize_button_pad()
+        elif button_num == 1:
+            for button_data in self.buttons:
+                button_data.matched = True
+                # TODO: Set Colors
+        
 
     def when_released(self, button):
         # TODO: this is called when a button is released. Add what you need to here
