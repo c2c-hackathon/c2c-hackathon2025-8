@@ -246,7 +246,7 @@ class Game:
             
     def initialize_button_pad(self):
         self.button_pad.clear_button_pad()
-        self.speaker.play_preloaded_wav(self.start_of_game_sound, wait_until_done=True) 
+        self.speaker.play_preloaded_wav(self.start_of_game_sound, wait_until_done=False) 
         self.matches = 0
         # TODO: Set all buttons to a color, List of colors to choose from: https://github.com/waveform80/colorzero/blob/master/colorzero/tables.py#L315
         # sounds are available in the sounds directory
