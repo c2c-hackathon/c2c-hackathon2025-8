@@ -77,6 +77,13 @@ class Game:
         new_thread = threading.Thread(target=add_to_queue)
         new_thread.start()
 
+    def play_sound_queue(self, sound):
+        def play():
+            self.speaker.play_preloaded_wav(sound, wait_until_done=True)
+
+        new_thread = threading.Thread(target=play)
+        new_thread.start()
+
     def _background_logic_checker(self):
         while self.play_game:
 
@@ -85,11 +92,11 @@ class Game:
                 continue
             button_number = self.queue.get()
             print(f"Handling button {button_number}")
-            
+
 
             # Example logic: light up the button that was pressed with a constant color
             button = self.button_pad.get_button(button_number + 1)
-            
+
             # Check for color existence in self.buttons
             try:
                 color = self.buttons[button_number].color
@@ -98,6 +105,13 @@ class Game:
 
             # Getting the button color 
             self.button_pad.set_button_led_color(button, color)
+
+            try:
+                sound = self.buttons[button_number].sound
+            except:
+                sound = "bloop_x"
+
+            self.play_sound_queue(sound)
 
             # Get previously selected button
             selected_button_data = self.buttons[self.selected - 1] if self.selected else None
@@ -114,7 +128,6 @@ class Game:
                 self.active = 0
                 self.selected = None
 
-            self.speaker.play_preloaded_wav("bloop_x", wait_until_done=True)  # Play a sound when button is pressed
             # TODO: check your game state, and update things
 
     def when_pressed(self, button):
