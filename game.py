@@ -34,6 +34,7 @@ class Game:
         self.play_game = True
         self.queue = queue.Queue()
         self.selected = None
+        self.attempts = 0
 
     @property
     def correct_sound(self):
@@ -75,15 +76,22 @@ class Game:
         
         print("New Selected Data: " + button_data.color)
         if self.selected != None:
-            selected_button_data = self.buttons[self.selected]
+            
+            
+            print(self.attempts)
+            selected_button_data = self.buttons[self.selected - 1]
             print("Selected Data:" + selected_button_data.color)
+
+            # If Button Is the Same
             if button.pin.info.number == self.selected:
                 return
+            self.selected = None
+            self.attempts += 1
             # if Matched
             if button_data.color == selected_button_data.color:
                 button_data.matched = True
                 selected_button_data.matched = True
-                self.selected = None
+                
                 self.speaker.play_preloaded_wav(self.correct_sound, wait_until_done=True)
                 return
             # if incorrect
