@@ -88,7 +88,16 @@ class Game:
 
     def when_held(self, button):
         # TODO: this is called when a button is held. Add what you need to here
-        pass
+        button_num = button.pin.info.number - 1
+        print(str(button_num) + " Button Held")
+        if button_num == 0:
+            self.selected = None
+            self.initialize_button_pad()
+        elif button_num == 1:
+            for button_data in self.buttons:
+                button_data.matched = True
+                print(button_data.matched)
+        
 
     def when_released(self, button):
         # TODO: this is called when a button is released. Add what you need to here
