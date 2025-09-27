@@ -131,13 +131,14 @@ class Game:
     def when_pressed(self, button):
         # TODO: this is called when a button is pressed. Add what you need to here
         _logger.info(f"Button {button.pin.info.number} pressed")
-        self.queue.put(button.pin.info.number - 1)
         button_data = self.buttons[button.pin.info.number - 1]
-        
-        print("New Selected Data: " + button_data.color)
-        self.active += 1
         if button_data.matched: 
             return
+        self.queue.put(button.pin.info.number - 1)
+
+        print("New Selected Data: " + button_data.color)
+        self.active += 1
+
         if self.selected != None:
             
             
