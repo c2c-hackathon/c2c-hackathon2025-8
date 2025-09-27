@@ -145,7 +145,10 @@ class Game:
         # TODO: this is called when a button is pressed. Add what you need to here
         _logger.info(f"Button {button.pin.info.number} pressed")
         button_data = self.buttons[button.pin.info.number - 1]
-        if button_data.matched or button.pin.info.number == self.selected: 
+        if button.pin.info.number == self.selected:
+            self.speaker.play_preloaded_wav(button_data.sound, wait_until_done=True) 
+            return
+        if button_data.matched: 
             return
         self.queue.put(button.pin.info.number - 1)
 
