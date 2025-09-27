@@ -195,6 +195,7 @@ class Game:
         for i in range(8):
             # Get random choices from the initial lists
             random_color = random.choice(initial_colors)
+            print(random_color)
 
             num1 = random.choice(initial_nums)
             initial_nums.remove(num1) # Remove number so random choice won't pick again
