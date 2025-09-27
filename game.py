@@ -122,7 +122,7 @@ class Game:
 
             if self.matches == 8:
                 self.speaker.play_preloaded_wav(self.end_of_game_sound, wait_until_done=True) 
-                print(self.attempts)
+                print("You Won In " + self.attempts + " Attempts!")
 
 
             self.speaker.play_preloaded_wav("bloop_x", wait_until_done=True)  # Play a sound when button is pressed
@@ -132,7 +132,7 @@ class Game:
         # TODO: this is called when a button is pressed. Add what you need to here
         _logger.info(f"Button {button.pin.info.number} pressed")
         button_data = self.buttons[button.pin.info.number - 1]
-        if button_data.matched: 
+        if button_data.matched or button.pin.info.number == self.selected: 
             return
         self.queue.put(button.pin.info.number - 1)
 
@@ -146,9 +146,6 @@ class Game:
             selected_button_data = self.buttons[self.selected - 1]
             print("Selected Data:" + selected_button_data.color)
 
-            # If Button Is the Same
-            if button.pin.info.number == self.selected:
-                return
 
             self.attempts += 1
             # if Matched
@@ -236,6 +233,7 @@ class Game:
     def initialize_button_pad(self):
         self.button_pad.clear_button_pad()
         self.speaker.play_preloaded_wav(self.start_of_game_sound, wait_until_done=True) 
+        self.matches = 0
         # TODO: Set all buttons to a color, List of colors to choose from: https://github.com/waveform80/colorzero/blob/master/colorzero/tables.py#L315
         # sounds are available in the sounds directory
         self.sounds = [
