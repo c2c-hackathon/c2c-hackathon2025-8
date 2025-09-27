@@ -20,6 +20,7 @@ class ButtonInfo:
     matched: bool
 
 
+
 class Game:
     def __init__(self, button_pad: MatrixButtonLEDController):
         self.button_pad = button_pad
@@ -32,6 +33,7 @@ class Game:
         self.started = False
         self.play_game = True
         self.queue = queue.Queue()
+        self.selected
 
     @property
     def correct_sound(self):
@@ -69,6 +71,18 @@ class Game:
         # TODO: this is called when a button is pressed. Add what you need to here
         _logger.info(f"Button {button.pin.info.number} pressed")
         self.queue.put(button.pin.info.number)
+        button_data = self.buttons[button.pin.info.number]
+        if self.selected != None:
+            # if Matched
+            if button_data.color == self.selected.color:
+                button_data.matched = True
+                self.selected.matched = True
+                self.selected = None
+
+        else:
+            self.selected = self.buttons[button.pin.info.number]
+            
+
 
     def when_held(self, button):
         # TODO: this is called when a button is held. Add what you need to here
