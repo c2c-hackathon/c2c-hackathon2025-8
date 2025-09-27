@@ -72,13 +72,17 @@ class Game:
         _logger.info(f"Button {button.pin.info.number} pressed")
         self.queue.put(button.pin.info.number)
         button_data = self.buttons[button.pin.info.number - 1]
+        
         print("New Selected Data: " + button_data.color)
         if self.selected != None:
-            print("Selected Data:" + self.selected.color)
+            selected_button_data = self.buttons[self.selected]
+            print("Selected Data:" + selected_button_data.color)
+            if button.pin.info.number == self.selected:
+                return
             # if Matched
-            if button_data.color == self.selected.color:
+            if button_data.color == selected_button_data.color:
                 button_data.matched = True
-                self.selected.matched = True
+                selected_button_data.matched = True
                 self.selected = None
                 self.speaker.play_preloaded_wav(self.correct_sound, wait_until_done=True)
                 return
@@ -86,7 +90,7 @@ class Game:
             self.speaker.play_preloaded_wav(self.incorrect_sound, wait_until_done=True) 
 
         else:
-            self.selected = button_data
+            self.selected = button.pin.info.number
             
 
 
