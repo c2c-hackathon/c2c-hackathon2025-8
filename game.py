@@ -57,14 +57,18 @@ class Game:
         return "end_of_game"
 
     def add_black_queue(self, button_number, selected_number):
+        # Function to black out lights
         def add_to_queue():
             print("New Queue Created:","\n", button_number, selected_number)
 
             wait(.8)
+            # Add a delay before hiding incorrect answers
 
+            # Queue the first button to be deleted
             button = self.button_pad.get_button(button_number + 1)
             self.button_pad.set_button_led_color(button, "black")
 
+            # Queue the second button to be deleted
             button = self.button_pad.get_button(selected_number + 1)
             self.button_pad.set_button_led_color(button, "black")
                 
@@ -84,10 +88,19 @@ class Game:
 
             # Example logic: light up the button that was pressed with a constant color
             button = self.button_pad.get_button(button_number + 1)
-            color = self.buttons[button_number].color if self.buttons[button_number] else "black"
+            
+            # Check for color existence in self.buttons
+            try:
+                color = self.buttons[button_number].color
+            except:
+                color = "red"
+
+            # Getting the button color 
             self.button_pad.set_button_led_color(button, color)
 
             print("Self Selected: ", self.selected)
+
+            # Logic to either keep color active, hide color
             if self.active > 1 and self.selected and self.selected.matched:
                 self.selected = None
                 self.active = 0
