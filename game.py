@@ -59,6 +59,9 @@ class Game:
     def add_black_queue(self, button_number, selected_number):
         def add_to_queue():
             print("New Queue Created:","\n", button_number, selected_number)
+
+            wait(.8)
+
             button = self.button_pad.get_button(button_number + 1)
             self.button_pad.set_button_led_color(button, "black")
 
