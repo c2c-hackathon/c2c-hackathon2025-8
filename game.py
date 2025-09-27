@@ -118,8 +118,6 @@ class Game:
             except:
                 sound = "bloop_x"
 
-            self.play_sound_queue(sound)
-
             # Get previously selected button
             selected_button_data = self.buttons[self.selected - 1] if self.selected else None
             print("Self Selected: ", selected_button_data)
@@ -169,13 +167,24 @@ class Game:
                 self.matches += 1
                 selected_button_data.matched = True
                 button_data.matched = True
+
+                self.speaker.play_preloaded_wav(button_data.sound, wait_until_done=False)
+                
+                wait(1)
+
                 self.speaker.play_preloaded_wav(self.correct_sound, wait_until_done=True)
             else:
                 selected_button_data.matched = False
                 
+                self.speaker.play_preloaded_wav(button_data.sound, wait_until_done=False)
+
+                wait(1)
+
                 self.speaker.play_preloaded_wav(self.incorrect_sound, wait_until_done=True) 
 
         else:
+            self.play_sound_queue(button_data.sound)
+
             self.selected = button.pin.info.number
            
     def when_held(self, button):
@@ -201,7 +210,7 @@ class Game:
         color_dictionary = {}
 
         initial_nums = list(range(16)) # Numbers 1-16 on the button pad
-        initial_colors = colors
+        initial_colors = colors.copy()
 
         for i in range(8):
             # Get random choices from the initial lists
@@ -220,23 +229,32 @@ class Game:
 
         return color_dictionary
     
-    def generate_sounds(self, sounds):
+    def generate_sounds(self, sounds, colors, color_list):
         sounds_dictionary = {}
 
         initial_nums = list(range(16)) # Numbers 1-16 on the button pad
-        initial_sounds = sounds
-
+        initial_sounds = sounds.copy()
+        initial_colors = colors.copy()
+        
         for i in range(8):
             # Get random choices from the initial lists
             random_sound = random.choice(initial_sounds)
 
-            num1 = random.choice(initial_nums)
-            initial_nums.remove(num1) # Remove number so random choice won't pick again
+            random_color = random.choice(initial_colors)
+            
+            numbers = [key for key, val in color_list.items() if val == random_color]
 
-            num2 = random.choice(initial_nums)
-            initial_nums.remove(num2) # Remove number so random choice won't pick again
+            try:
+                num1, num2 = numbers[0], numbers[1]
+            except:
+                num1 = random.choice(initial_nums)
+                initial_nums.remove(num1) # Remove number so random choice won't pick again
+
+                num2 = random.choice(initial_nums)
+                initial_nums.remove(num2) # Remove number so random choice won't pick again
             
             initial_sounds.remove(random_sound) 
+            initial_colors.remove(random_color) 
 
             sounds_dictionary.update({num1: random_sound, num2: random_sound})
 
@@ -273,7 +291,7 @@ class Game:
         ]
 
         color_list = self.generate_colors(self.colors)
-        sound_list = self.generate_sounds(self.sounds) 
+        sound_list = self.generate_sounds(self.sounds, self.colors, color_list) 
         
         new_buttons = []
 
