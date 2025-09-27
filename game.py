@@ -35,9 +35,11 @@ class Game:
         self.started = False
         self.play_game = True
         self.queue = queue.Queue()
+
         self.active = 0
         self.selected = None
         self.attempts = 0
+        self.matches = 0
 
     @property
     def correct_sound(self):
@@ -56,6 +58,11 @@ class Game:
         """The sound that is played when the game ends."""
         # OPTIONAL: change this to a different sound if you want
         return "end_of_game"
+    @property
+    def start_of_game_sound(self):
+        """The sound that is played when the game ends."""
+        # OPTIONAL: change this to a different sound if you want
+        return "drum_roll2"
 
     def add_black_queue(self, button_number, selected_number):
         # Function to black out lights
@@ -127,15 +134,21 @@ class Game:
                 self.add_black_queue(button_number, selected_button_data.index)
                 self.active = 0
                 self.selected = None
+                
+            if self.matches == 8:
+                self.speaker.play_preloaded_wav(self.end_of_game_sound, wait_until_done=True) 
+                print(self.attempts)
 
             # TODO: check your game state, and update things
 
     def when_pressed(self, button):
         # TODO: this is called when a button is pressed. Add what you need to here
         _logger.info(f"Button {button.pin.info.number} pressed")
-        self.queue.put(button.pin.info.number - 1)
         button_data = self.buttons[button.pin.info.number - 1]
-        
+        if button_data.matched: 
+            return
+        self.queue.put(button.pin.info.number - 1)
+
         print("New Selected Data: " + button_data.color)
         self.active += 1
 
@@ -153,7 +166,9 @@ class Game:
             self.attempts += 1
             # if Matched
             if button_data.color == selected_button_data.color:
+                self.matches += 1
                 selected_button_data.matched = True
+                button_data.matched = True
                 self.speaker.play_preloaded_wav(self.correct_sound, wait_until_done=True)
             else:
                 selected_button_data.matched = False
@@ -171,8 +186,10 @@ class Game:
             self.selected = None
             self.initialize_button_pad()
         elif button_num == 1:
-            for button_data in self.buttons:
+            for i, button_data in enumerate(self.buttons):
                 button_data.matched = True
+
+                self.button_pad.set_button_led_color(self.button_pad.matrix_button_board[i], button_data.color)
                 # TODO: Set Colors
         
 
@@ -189,6 +206,7 @@ class Game:
         for i in range(8):
             # Get random choices from the initial lists
             random_color = random.choice(initial_colors)
+            print(random_color)
 
             num1 = random.choice(initial_nums)
             initial_nums.remove(num1) # Remove number so random choice won't pick again
@@ -228,6 +246,7 @@ class Game:
             
     def initialize_button_pad(self):
         self.button_pad.clear_button_pad()
+        self.speaker.play_preloaded_wav(self.start_of_game_sound, wait_until_done=True) 
         # TODO: Set all buttons to a color, List of colors to choose from: https://github.com/waveform80/colorzero/blob/master/colorzero/tables.py#L315
         # sounds are available in the sounds directory
         self.sounds = [
